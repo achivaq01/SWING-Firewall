@@ -1,16 +1,22 @@
 package com.project;
 
+import com.project.controllers.Controller;
 import com.project.utils.LogLib;
+import com.project.views.RuleView;
 
 import javax.swing.*;
+
+import java.awt.*;
 
 import static com.project.utils.Constants.LAUNCH_SIZE;
 import static com.project.utils.Constants.TAG_FIREWALL_APP;
 
 public class FirewallApp extends JFrame {
+    private final Controller controller;
 
     public FirewallApp() {
         super();
+        controller = new Controller(this);
         boolean initialized = initialize();
 
         if (!initialized) {
@@ -32,6 +38,7 @@ public class FirewallApp extends JFrame {
         setTitle("Firewall App");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(LAUNCH_SIZE);
+        setLayout(controller.getLayout());
 
         return initializeComponents();
     }
@@ -43,7 +50,14 @@ public class FirewallApp extends JFrame {
      */
     private boolean initializeComponents() {
         LogLib.logInfo(TAG_FIREWALL_APP, FirewallApp.class, "Initializing components...", "initializeComponents");
-        return true;
+        boolean initialized = false;
+        controller.setRuleView(new RuleView(controller));
+        RuleView ruleView = controller.getRuleView();
+        if (ruleView.isInitialized()) {
+            add(ruleView);
+            initialized = true;
+        }
+        return initialized;
     }
 
 
