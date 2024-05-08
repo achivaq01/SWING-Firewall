@@ -2,6 +2,7 @@ package com.project;
 
 import com.project.controllers.Controller;
 import com.project.utils.LogLib;
+import com.project.views.EditView;
 import com.project.views.RuleView;
 
 import javax.swing.*;
@@ -13,10 +14,12 @@ import static com.project.utils.Constants.TAG_FIREWALL_APP;
 
 public class FirewallApp extends JFrame {
     private final Controller controller;
+    private final JPanel contentPane;
 
     public FirewallApp() {
         super();
         controller = new Controller(this);
+        contentPane = new JPanel();
         boolean initialized = initialize();
 
         if (!initialized) {
@@ -38,7 +41,7 @@ public class FirewallApp extends JFrame {
         setTitle("Firewall App");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(LAUNCH_SIZE);
-        setLayout(controller.getLayout());
+        contentPane.setLayout(controller.getLayout());
 
         return initializeComponents();
     }
@@ -54,13 +57,15 @@ public class FirewallApp extends JFrame {
         controller.setRuleView(new RuleView(controller));
         RuleView ruleView = controller.getRuleView();
         if (ruleView.isInitialized()) {
-            add(ruleView);
+            contentPane.add(ruleView);
             initialized = true;
         }
+        setContentPane(contentPane);
         return initialized;
     }
 
-
-
-
+    @Override
+    public JPanel getContentPane() {
+        return contentPane;
+    }
 }

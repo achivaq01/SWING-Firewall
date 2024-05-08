@@ -128,7 +128,7 @@ public class RuleView extends JPanel {
             newRuleButton = new JButton(NEW_RULE_BUTTON_LABEL);
             newRuleButton.addActionListener(e -> {
                 LogLib.logInfo(TAG_RULE_VIEW, this.getClass(), "Moving to the edit view", "initializeNewRuleButton");
-                controller.next(new EditView());
+                controller.next(new EditView(controller), this);
             });
             initialized = true;
         } catch (Exception e) {

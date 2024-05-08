@@ -1,6 +1,7 @@
 package com.project.controllers;
 
 import com.project.FirewallApp;
+import com.project.models.NetworkRule;
 import com.project.views.EditView;
 import com.project.views.RuleView;
 
@@ -18,10 +19,22 @@ public class Controller {
         layout = new CardLayout();
     }
 
-    public void next(JPanel newView) {
-        System.out.println(firewallApp.getLayout());
-        firewallApp.add(newView);
-        layout.next(firewallApp);
+    public void next(JPanel newView, JPanel currentView) {
+        firewallApp.getContentPane().remove(currentView);
+        firewallApp.getContentPane().add(newView);
+        layout.next(firewallApp.getContentPane());
+    }
+
+    public boolean createRule(NetworkRule rule) {
+        boolean created = false;
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder("sudo", "iptables", "-A", rule.getDirection(), "-p", rule.getType(), "--dport", rule.getPort(), "-s", rule.getIpAddress(), "-m", "comment", "--comment", rule.getComment(), "-j", rule.getDirection());
+            Process process = processBuilder.start();
+            process.waitFor();
+        } catch (Exception e) {
+            //
+        }
+        return created;
     }
 
     public void setRuleView(RuleView ruleView) {
