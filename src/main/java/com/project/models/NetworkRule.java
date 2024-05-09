@@ -10,7 +10,7 @@ public class NetworkRule {
     private String action; //network traffic allowed, forbidden or other.
     private String networkInterface; //eth0, wlan0, etc OR null
     private String direction; // either 0 IN or 1 OUT
-    private String comment;
+    private String comment = "--";
     private String number;
 
     public String getName() {

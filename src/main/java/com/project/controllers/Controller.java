@@ -38,6 +38,31 @@ public class Controller {
         }
     }
 
+    public void modifyRule(NetworkRule rule) {
+        List<String> command = new ArrayList<>();
+        System.out.println(rule.toString());
+        command.add("sudo");
+        command.add("iptables");
+        command.add("-R");
+        command.add(rule.getName());
+        command.add(rule.getNumber());
+        command.add("-s");
+        command.add(rule.getIpAddress());
+        command.add("-p");
+        command.add(rule.getType());
+        command.add("--dport");
+        command.add(rule.getPort());
+        command.add("-j");
+        command.add(rule.getAction());
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
+            Process process = processBuilder.start();
+            process.waitFor();
+        } catch (InterruptedException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void createRule(NetworkRule rule) {
         //boolean created = false;
         try {

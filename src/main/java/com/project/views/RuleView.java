@@ -149,7 +149,30 @@ public class RuleView extends JPanel {
         try {
             modifyRuleButton = new JButton(MODIFY_RULE_BUTTON_LABEL);
             modifyRuleButton.addActionListener(e -> {
-                //TODO implement button logic;
+                int selectedRow = ruleTable.getSelectedRow();
+                TableModel model = ruleTable.getModel();
+                NetworkRule rule = new NetworkRule();
+
+                String name = (String) model.getValueAt(selectedRow, 0);
+                String number = name.split("\\s+")[1];
+                String chain = name.split("\\s+")[0];
+                System.out.println(selectedRow);
+                if (selectedRow != -1) {
+                    rule.setName(chain);
+                    rule.setNumber(number);
+                    rule.setNetworkInterface(model.getValueAt(selectedRow, 8).toString());
+                    rule.setAction(model.getValueAt(selectedRow, 7).toString());
+                    rule.setPort(model.getValueAt(selectedRow, 1).toString());
+                    rule.setDirection(model.getValueAt(selectedRow, 9).toString());
+                    rule.setType(model.getValueAt(selectedRow, 2).toString());
+                    rule.setIpAddress(model.getValueAt(selectedRow, 6).toString());
+
+                    rule.setComment(model.getValueAt(selectedRow, 5).toString());
+
+                    System.out.println("hello");
+                    controller.next(new EditView(controller, rule), this);
+                }
+
             });
             initialized = true;
         } catch (Exception e) {
@@ -170,12 +193,11 @@ public class RuleView extends JPanel {
             deleteRuleButton.addActionListener(e -> {
                 int selectedRow = ruleTable.getSelectedRow();
                 if (selectedRow != -1) {
-                    TableModel tableModel = (TableModel) ruleTable.getModel();
+                    TableModel tableModel = ruleTable.getModel();
                     String rule = (String) tableModel.getValueAt(selectedRow, 0);
                     String number = rule.split("\\s+")[1];
                     String chain = rule.split("\\s+")[0];
 
-                    // Dialog box to confirm deletion
                     int choice = JOptionPane.showConfirmDialog(null, "Are you sure to delete the rule?", "Confirmation", JOptionPane.YES_NO_OPTION);
 
                     if (choice == JOptionPane.YES_OPTION) {
