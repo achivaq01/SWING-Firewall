@@ -6,6 +6,8 @@ import com.project.utils.LogLib;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.text.TableView;
 
 import java.awt.*;
 import java.util.List;
@@ -166,7 +168,25 @@ public class RuleView extends JPanel {
         try {
             deleteRuleButton = new JButton(DELETE_RULE_BUTTON_LABEL);
             deleteRuleButton.addActionListener(e -> {
-                //TODO implement button logic;
+                int selectedRow = ruleTable.getSelectedRow();
+                if (selectedRow != -1) {
+                    TableModel tableModel = (TableModel) ruleTable.getModel();
+                    String rule = (String) tableModel.getValueAt(selectedRow, 0);
+                    String number = rule.split("\\s+")[1];
+                    String chain = rule.split("\\s+")[0];
+
+                    // Dialog box to confirm deletion
+                    int choice = JOptionPane.showConfirmDialog(null, "Are you sure to delete the rule?", "Confirmation", JOptionPane.YES_NO_OPTION);
+
+                    if (choice == JOptionPane.YES_OPTION) {
+                        controller.deleteRule(number, chain);
+
+                        if (tableModel instanceof DefaultTableModel) {
+                            ((DefaultTableModel) tableModel).removeRow(selectedRow);
+                        }
+
+                    }
+                }
             });
             initialized = true;
         } catch (Exception e) {
@@ -174,6 +194,7 @@ public class RuleView extends JPanel {
         }
         return initialized;
     }
+
 
     private void populateTableColumns() {
         List<NetworkRule> networkRules = getRules();

@@ -16,7 +16,7 @@ public class NetworkRuleParser {
     public static List<NetworkRule> getRules() {
         List<NetworkRule> rules = new ArrayList<>();
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("sudo", "iptables", "-L", "-v");
+            ProcessBuilder processBuilder = new ProcessBuilder("sudo", "iptables", "-L", "-v", "-n", "--line-numbers");
             Process process = processBuilder.start();
 
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -36,25 +36,33 @@ public class NetworkRuleParser {
                     isTableHeader = false;
                     continue;
                 }
-
                 String[] rule = line.strip().split("\\s+");
                 NetworkRule networkRule = new NetworkRule();
-                networkRule.setType(rule[3]);
-                networkRule.setAction(rule[4]);
-                networkRule.setNetworkInterface("input: " + rule[5] + " output: " + rule[6]);
-                networkRule.setDirection("INPUT");
-                if (rule[7].equals("anywhere") && rule[8].equals("anywhere")) {
-                    networkRule.setIpAddress(rule[7]);
-                } else if (rule[7].equals("anywhere")) {
-                    networkRule.setDirection("OUTPUT");
-                    networkRule.setIpAddress(rule[8]);
-                } else if (rule[8].equals("anywhere")) {
-                    networkRule.setDirection("INPUT");
-                    networkRule.setIpAddress(rule[7]);
+                networkRule.setNumber(rule[0]);
+                networkRule.setType(rule[4]);
+                networkRule.setAction(rule[5]);
+                if (rule[6].equals("*") && rule[7].equals("*")) {
+                    networkRule.setNetworkInterface("*");
+                } else if (rule[6].equals("*")) {
+                    networkRule.setNetworkInterface(rule[7]);
+                } else if (rule[7].equals("*")) {
+                    networkRule.setNetworkInterface(rule[6]);
                 } else {
-                    networkRule.setIpAddress("input: " + rule[7] + " output: " + rule[8]);
+                    networkRule.setNetworkInterface("input: " + rule[6] + " output: " + rule[7]);
                 }
-                networkRule.setName(rule[2]);
+                networkRule.setDirection("INPUT");
+                if (rule[8].equals("0.0.0.0/0") && rule[9].equals("0.0.0.0/0")) {
+                    networkRule.setIpAddress(rule[8]);
+                } else if (rule[8].equals("0.0.0.0/0")) {
+                    networkRule.setDirection("OUTPUT");
+                    networkRule.setIpAddress(rule[9]);
+                } else if (rule[9].equals("0.0.0.0/0")) {
+                    networkRule.setDirection("INPUT");
+                    networkRule.setIpAddress(rule[8]);
+                } else {
+                    networkRule.setIpAddress("input: " + rule[8] + " output: " + rule[9]);
+                }
+                networkRule.setName(chain + " " + networkRule.getNumber());
                 if (networkRule.getName().toLowerCase().contains("input")) {
                     networkRule.setDirection("INPUT");
                 } else if (networkRule.getName().toLowerCase().contains("output")) {
@@ -64,9 +72,9 @@ public class NetworkRuleParser {
                 } else {
                     networkRule.setDirection("--");
                 }
-                if (rule.length > 9) {
+                if (rule.length > 10) {
                     StringBuilder comment = new StringBuilder();
-                    for (int i = 9; i < rule.length; i++) {
+                    for (int i = 10; i < rule.length; i++) {
                         if (rule[i].contains(":")) {
                             String[] split = rule[i].split(":");
                             if (split.length == 2) {

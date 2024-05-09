@@ -11,6 +11,7 @@ public class NetworkRule {
     private String networkInterface; //eth0, wlan0, etc OR null
     private String direction; // either 0 IN or 1 OUT
     private String comment;
+    private String number;
 
     public String getName() {
         return name;
@@ -90,6 +91,14 @@ public class NetworkRule {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
     }
 
     @Override

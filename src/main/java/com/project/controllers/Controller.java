@@ -7,6 +7,9 @@ import com.project.views.RuleView;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Controller {
     private final FirewallApp firewallApp;
@@ -25,16 +28,49 @@ public class Controller {
         layout.next(firewallApp.getContentPane());
     }
 
-    public boolean createRule(NetworkRule rule) {
-        boolean created = false;
+    public void deleteRule(String number, String chain) {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("sudo", "iptables", "-A", rule.getDirection(), "-p", rule.getType(), "--dport", rule.getPort(), "-s", rule.getIpAddress(), "-m", "comment", "--comment", rule.getComment(), "-j", rule.getDirection());
+            ProcessBuilder processBuilder = new ProcessBuilder("sudo", "iptables", "-D", chain, number);
+            Process process = processBuilder.start();
+            process.waitFor();
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void createRule(NetworkRule rule) {
+        //boolean created = false;
+        try {
+            List<String> command = new ArrayList<>();
+            command.add("sudo");
+            command.add("iptables");
+            command.add("-A");
+            command.add(rule.getName());
+
+            if (!rule.getType().isBlank()) {
+                command.add("-p");
+                command.add(rule.getType());
+            }
+
+            if (!rule.getPort().isBlank()) {
+                command.add("--dport");
+                command.add(rule.getPort());
+            }
+
+            command.add("-s");
+            command.add(rule.getIpAddress());
+
+            if (!rule.getAction().isBlank()) {
+                command.add("-j");
+                command.add(rule.getAction());
+            }
+
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
             Process process = processBuilder.start();
             process.waitFor();
         } catch (Exception e) {
             //
         }
-        return created;
     }
 
     public void setRuleView(RuleView ruleView) {
